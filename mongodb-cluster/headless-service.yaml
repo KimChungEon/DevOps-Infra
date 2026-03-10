@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  namespace: db-cluster
+  labels:
+    app: mongodb
+spec:
+  ports:
+  - port: 27017
+    targetPort: 27017
+    name: mongodb
+  clusterIP: None  # Headless Service
+  selector:
+    app: mongodb
+---
+# 외부 접근용 서비스 (선택사항)
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-external
+  namespace: db-cluster
+spec:
+  type: NodePort
+  ports:
+  - port: 27017
+    targetPort: 27017
+    nodePort: 30017  # 외부 포트
+  selector:
+    app: mongodb
+      #    statefulset.kubernetes.io/pod-name: mongodb-0  # Primary에만 연결

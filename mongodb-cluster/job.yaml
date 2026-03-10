@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-backup-debug
+  namespace: db-cluster
+spec:
+  template:
+    spec:
+      containers:
+      - name: backup
+        image: mongo:5.0
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "=== Environment Check ==="
+          whoami
+          id
+          pwd
+          
+          echo "=== /backup permissions ==="
+          ls -ld /backup
+          
+          echo "=== Test write to /backup ==="
+          touch /backup/test.txt && echo "SUCCESS" || echo "FAILED"
+          
+          echo "=== Test mkdir in /backup ==="
+          mkdir /backup/testdir && echo "SUCCESS" || echo "FAILED"
+          
+          echo "=== Test mongodump ==="
+          mongodump \
+            --host mongodb-service.db-cluster.svc.cluster.local \
+            --out /backup/test-dump
+          
+          echo "=== Result ==="
+          ls -lh /backup/
+          
+        volumeMounts:
+        - name: backup-dir
+          mountPath: /backup
+      restartPolicy: Never
+      volumes:
+      - name: backup-dir
+        hostPath:
+          path: /mnt/mongodb-backups
+          type: DirectoryOrCreate
