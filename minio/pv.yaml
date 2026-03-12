@@ -1,0 +1,119 @@
+# minio-0 / data0
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minio-data0-0
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-path
+  hostPath:
+    path: /data/minio/minio-0/data0   # 노드의 실제 경로
+---
+## minio-0 / data1
+#apiVersion: v1
+#kind: PersistentVolume
+#metadata:
+#  name: minio-data1-0
+#spec:
+#  capacity:
+#    storage: 10Gi
+#  accessModes:
+#    - ReadWriteOnce
+#  persistentVolumeReclaimPolicy: Retain
+#  storageClassName: local-path
+#  hostPath:
+#    path: /data/minio/minio-0/data1
+#---
+# minio-1 / data0
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minio-data0-1
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-path
+  hostPath:
+    path: /data/minio/minio-1/data0
+---
+# minio-1 / data1
+#apiVersion: v1
+#kind: PersistentVolume
+#metadata:
+#  name: minio-data1-1
+#spec:
+#  capacity:
+#    storage: 10Gi
+#  accessModes:
+#    - ReadWriteOnce
+#  persistentVolumeReclaimPolicy: Retain
+#  storageClassName: local-path
+#  hostPath:
+#    path: /data/minio/minio-1/data1
+#---
+# minio-2 / data0
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minio-data0-2
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-path
+  hostPath:
+    path: /data/minio/minio-2/data0
+---
+# minio-2 / data1
+#apiVersion: v1
+#kind: PersistentVolume
+#metadata:
+#  name: minio-data1-2
+#spec:
+#  capacity:
+#    storage: 10Gi
+#  accessModes:
+#    - ReadWriteOnce
+#  persistentVolumeReclaimPolicy: Retain
+#  storageClassName: local-path
+#  hostPath:
+#    path: /data/minio/minio-2/data1
+#---
+# minio-3 / data0
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minio-data0-3
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-path
+  hostPath:
+    path: /data/minio/minio-3/data0
+---
+# minio-3 / data1
+#apiVersion: v1
+#kind: PersistentVolume
+#metadata:
+#  name: minio-data1-3
+#spec:
+#  capacity:
+#    storage: 10Gi
+#  accessModes:
+#    - ReadWriteOnce
+#  persistentVolumeReclaimPolicy: Retain
+#  storageClassName: local-path
+#  hostPath:
+#    path: /data/minio/minio-3/data1
