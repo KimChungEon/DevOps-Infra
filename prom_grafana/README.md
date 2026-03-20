@@ -1,10 +1,9 @@
-테스트 및 결과
+### 테스트 및 결과
 
 ```bash
 sudo apt install stress
 
-# 코어 수의 65% 정도 부하
-# 4코어 기준: 2-3개 코어 사용
+# 코어 수의 65% 부하
 stress --cpu 2 --timeout 300s
 ```
 
