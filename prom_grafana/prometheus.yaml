@@ -1,0 +1,39 @@
+global:
+  scrape_interval: 15s          # 15초마다 메트릭 수집
+  evaluation_interval: 15s      # 15초마다 알림 규칙 평가
+
+scrape_configs:
+  # Prometheus 자체 모니터링
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter (노드 메트릭)
+  - job_name: 'nodes'
+    static_configs:
+      - targets: 
+          - 'node-exporter:9100'
+          - '192.168.56.102:9100'
+        labels:
+          environment: 'production'
+
+  # 추가 노드가 있다면 여기에 추가
+  #  - job_name: 'remote-nodes'
+  #    static_configs:
+  #   - targets: ['192.168.56.102:9100']
+  #     labels:
+  #       instance: 'k8s-6-node2'
+            #          - '192.168.1.11:9100'
+            
+# Alertmanager 연결
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']  # Docker Compose 사용 시
+          # - targets: ['localhost:9093']  # 로컬 설치 시
+
+
+rule_files:
+  - 'alert-rules.yml'
+
+
