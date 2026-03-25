@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minio
+  namespace: minio
+spec:
+  serviceName: minio-headless
+  replicas: 4                      # 최소 4개 (Erasure Coding 요구사항)
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      affinity:
+        podAntiAffinity:           # 서로 다른 노드에 분산 배치
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: minio
+                topologyKey: kubernetes.io/hostname
+
+      containers:
+        - name: minio
+          image: minio/minio:latest
+          command:
+            - minio
+            - server
+            # 4개 Pod × 2개 드라이브 = 8드라이브 분산 구성
+            #- http://minio-{0...3}.minio-headless.minio.svc.cluster.local:9000/data{0...1}
+            - http://minio-{0...3}.minio-headless.minio.svc.cluster.local:9000/data0
+            - --console-address
+            - ":9001"
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: MINIO_ROOT_USER
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: MINIO_ROOT_PASSWORD
+          ports:
+            - containerPort: 9000
+              name: api
+            - containerPort: 9001
+              name: console
+          volumeMounts:
+            - name: data0
+              mountPath: /data0
+                #- name: data1
+                #mountPath: /data1
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: 9000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: 9000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+  volumeClaimTemplates:
+    - metadata:
+        name: data0
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path   # 환경에 맞게 변경
+        resources:
+          requests:
+            storage: 10Gi
+#    - metadata:
+#        name: data1
+#      spec:
+#        accessModes: ["ReadWriteOnce"]
+#        storageClassName: local-path
+#        resources:
+#          requests:
+#            storage: 10Gi
