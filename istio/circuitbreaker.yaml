@@ -1,0 +1,28 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: ab-back-cb
+  namespace: back-a
+spec:
+  host: ab-back.back-a.svc.cluster.local
+  trafficPolicy:
+    outlierDetection:
+      consecutive5xxErrors: 1   # 3번 연속 5xx 에러 시 차단
+      interval: 1s              # 10초마다 상태 체크
+      baseEjectionTime: 30s      # 30초 동안 차단
+      maxEjectionPercent: 50     # 최대 50% Pod 차단
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: ab-back-vs
+  namespace: back-a
+spec:
+  hosts:
+    - ab-back.back-a.svc.cluster.local
+  http:
+  - route:
+    - destination:
+        host: ab-back.back-a.svc.cluster.local
+        port:
+          number: 3000
