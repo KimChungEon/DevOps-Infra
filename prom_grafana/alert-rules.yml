@@ -1,0 +1,63 @@
+groups:
+  - name: node_alerts
+    interval: 30s
+    rules:
+      # 노드 다운
+      - alert: InstanceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "인스턴스 다운 감지"
+          description: "{{ $labels.instance }}가 5분 이상 응답하지 않습니다."
+
+      # CPU 사용률 60% 이상 30초 지속
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 60
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 CPU 사용률 (instance {{ $labels.instance }})"
+          description: "CPU 사용률이 {{ $value }}% 입니다"
+
+      # 메모리 사용률 80% 이상
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "높은 메모리 사용률 (instance {{ $labels.instance }})"
+          description: "메모리 사용률이 {{ $value }}% 입니다"
+
+      # 디스크 여유 공간 30% 미만
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes) * 100 < 30
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "디스크 공간 부족 (instance {{ $labels.instance }})"
+          description: "{{ $labels.mountpoint }}의 여유 공간이 {{ $value }}% 입니다"
+
+      # 디스크 I/O 높음
+      - alert: HighDiskIO
+        expr: rate(node_disk_io_time_seconds_total[5m]) > 0.8
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 디스크 I/O"
+          description: "{{ $labels.instance }}의 디스크 I/O 사용률이 높습니다."
+
+      # 네트워크 에러
+      - alert: HighNetworkErrors
+        expr: rate(node_network_receive_errs_total[5m]) + rate(node_network_transmit_errs_total[5m]) > 10
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 네트워크 에러율"
+          description: "{{ $labels.instance }}의 네트워크 에러가 증가하고 있습니다."
