@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mongodb-backup
+  namespace: db-cluster
+spec:
+  schedule: "* * * * *"  
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: mongo:5.0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              BACKUP_DATE=$(date +%Y%m%d-%H%M%S)
+              BACKUP_DIR="/backup/${BACKUP_DATE}"
+
+              mongodump --host mongodb-service.db-cluster.svc.cluster.local --out ${BACKUP_DIR}
+              #--username admin \
+                        #--password password123 \
+                        #--authenticationDatabase admin \
+                      
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+          restartPolicy: OnFailure
+          securityContext:
+            runAsUser: 0
+          volumes:
+          - name: backup-storage
+            #persistentVolumeClaim:
+            #  claimName: mongodb-backup-pvc
+            hostPath:
+              path: /mnt/mongodb-backups
+              type: DirectoryOrCreate
