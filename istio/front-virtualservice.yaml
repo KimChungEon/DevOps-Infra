@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: frontend
+  namespace: front
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - istio-system/msa-gateway
+  http:
+  - match:
+      - uri:
+          prefix: /
+    route:
+    - destination:
+        host: ab-front.front.svc.cluster.local
+        port:
+          number: 3001

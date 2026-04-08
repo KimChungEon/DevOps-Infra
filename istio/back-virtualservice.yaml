@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: backend-vs
+  namespace: istio-system
+spec:
+  hosts:
+    - ab-back.back-a.svc.cluster.local
+  http:
+    - timeout: 5s
+      retries:
+        attempts: 3
+      route:
+        - destination:
+            host: ab-back.back-a.svc.cluster.local
+            port:
+              number: 3000
